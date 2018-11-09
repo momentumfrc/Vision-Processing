@@ -1,5 +1,6 @@
 package org.usfirst.frc.team4999.vision;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
 import edu.wpi.first.wpilibj.SPI;
@@ -30,6 +31,8 @@ private class ByteQueue {
             start = (start + 1) % data.length;
             length--;
             return value;
+        } else {
+            throw new IndexError("Cannot dequeue from empty queue");
         }
     }
 
@@ -100,6 +103,10 @@ class PixyCam {
     private static final int PIXY_START_WORD = 0xaa55;
     private static final int PIXY_START_WORD_CC = 0xaa56;
     private static final int PIXY_START_WORD_OUT_OF_SYNC = 0x55aa;
+
+    private static final byte PIXY_SERVO_SYNC = 0xff;
+    private static final byte PIXY_CAM_BRIGHTNESS_SYNC = 0xfe;
+    private static final byte PIXY_LED_SYNC = 0xfd;
 
     private PixyCamIO io;
 
@@ -193,5 +200,62 @@ class PixyCam {
             
         }
 
+    }
+
+    /**
+     * Sets the position of any connected servos
+     * @param s1 Servo 0 (pan) position, between 0 and 1000
+     * @param s2 Servo 1 (tilt) position, between 0 and 1000
+     */
+    public void setServos(int s1, int s2) {
+        if(s1 > 1000 || s1 < 0 || s2 > 1000 || s2 < 0) {
+            throw new InvalidParameterException("Servo values must be between 0 and 1000");
+        }
+        byte[] data = new byte[6];
+        data[0] = 0x00;
+        data[1] = PIXY_SERVO_SYNC;
+        data[2] = (byte)s1;
+        data[3] = (byte)(s1 >> 8);
+        data[4] = (byte)s2;
+        data[5] = (byte)(s2 >> 8);
+
+        io.send(data);
+    }
+
+    /**
+     * Sets the exposure of the camera
+     * @param exposure Exposure value, between 0 and 255
+     */
+    public void setExposure(int exposure) {
+        if(exposure < 0 || exposure > 255) {
+            throw new InvalidParameterException("Brightness must be between 0 and 255");
+        }
+        byte[] data = new byte[3];
+        data[0] = 0x00;
+        data[1] = PIXY_CAM_BRIGHTNESS_SYNC;
+        data[2] = (byte)exposure;
+
+        io.send(data);
+    }
+
+    /**
+     * Sets the color of the Pixy's LED
+     * @param red red value, between 0 and 255
+     * @param green green value, between 0 and 255
+     * @param blue blue value, between 0 and 255
+     */
+    public void setLED(int red, int green, int blue) {
+        if(red < 0 || red > 255 || green < 0 || green > 255 || blue < 0 || blue > 255) {
+            throw new InvalidParameterException("Colors must be between 0 and 255");
+        }
+
+        byte[] data = new byte[3];
+        data[0] = 0x00;
+        data[1] = PIXY_LED_SYNC;
+        data[2] = (byte)red;
+        data[3] = (byte)green;
+        data[4] = (byte)blue;
+
+        io.send(data);
     }
 }
