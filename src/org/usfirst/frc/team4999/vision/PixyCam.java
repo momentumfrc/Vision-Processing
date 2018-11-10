@@ -62,9 +62,9 @@ class PixyCam {
     private static final int PIXY_START_WORD_CC = 0xaa56;
     private static final int PIXY_START_WORD_OUT_OF_SYNC = 0x55aa;
 
-    private static final byte PIXY_SERVO_SYNC = 0xff;
-    private static final byte PIXY_CAM_BRIGHTNESS_SYNC = 0xfe;
-    private static final byte PIXY_LED_SYNC = 0xfd;
+    private static final int PIXY_SERVO_SYNC = (byte) 0xff;
+    private static final int PIXY_CAM_BRIGHTNESS_SYNC = (byte) 0xfe;
+    private static final int PIXY_LED_SYNC = (byte) 0xfd;
 
     private PixyCamIO io;
 
@@ -102,7 +102,7 @@ class PixyCam {
     }
 
     public PixyObject[] getDetectedObjects() {
-        PixyObject[] out = PixyObject[0];
+        PixyObject[] out = new PixyObject[0];
         // If the start of the next frame is detected before this method exits, skip the getStart() method since we've already read the start byte
         if(!skipStart) {
             if(!getStart()) {
@@ -114,18 +114,18 @@ class PixyCam {
         }
 
         while(true) {
-            checksum = io.transact();
+            int checksum = io.transact();
             if(checksum == PIXY_START_WORD) {
                 // We've reached the next frame, so return all the detected objects for the current frame
                 // Also, since we've already read the sync byte that signals we're between frames, set skipStart to true so we don't skip this frame entirely looking for the next frame
                 skipStart = true;
-                blocktype = PixyObject.blocktype.NORMAL_BLOCK;
+                blocktype = PixyObject.BlockType.NORMAL_BLOCK;
                 return detectedObjects.toArray(out);
             } else if (checksum == PIXY_START_WORD_CC) {
                 // We've reached the next frame, so return all the detected objects for the current frame
                 // Also, since we've already read the sync byte that signals we're between frames, set skipStart to true so we don't skip this frame entirely looking for the next frame
                 skipStart = true;
-                blocktype = PixyObject.blocktype.CC_BLOCK;
+                blocktype = PixyObject.BlockType.CC_BLOCK;
                 return detectedObjects.toArray(out);
             } else if(checksum == 0) {
                 // No more data, return everything we've read so far
@@ -138,11 +138,11 @@ class PixyCam {
             y = io.transact();
             width = io.transact();
             height = io.transact();
-            if(blocktype == PixyObject.blocktype.CC_BLOCK) {
+            if(blocktype == PixyObject.BlockType.CC_BLOCK) {
                 angle = io.transact();
             }
 
-            if((signature + x + y + width + height + angle) & 0xffff == checksum) {
+            if(((signature + x + y + width + height + angle) & 0xffff) == checksum) {
                 detectedObjects.add(new PixyObject(signature, x, y, width, height, angle));
             }
 

@@ -27,7 +27,7 @@ class ByteQueue {
             length--;
             return value;
         } else {
-            throw new IndexError("Cannot dequeue from empty queue");
+            throw new IndexOutOfBoundsException("Cannot dequeue from empty queue");
         }
     }
 

@@ -2,7 +2,8 @@ package org.usfirst.frc.team4999.vision;
 
 public class PixyObject {
 
-    public static enum BlockType { NORMAL_BLOCK, CC_BLOCK };
+    public static enum BlockType { NORMAL_BLOCK, CC_BLOCK }
+
 
     private final int signature;
     private final int x;
