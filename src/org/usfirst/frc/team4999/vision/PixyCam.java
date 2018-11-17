@@ -62,9 +62,9 @@ class PixyCam {
     private static final int PIXY_START_WORD_CC = 0xaa56;
     private static final int PIXY_START_WORD_OUT_OF_SYNC = 0x55aa;
 
-    private static final int PIXY_SERVO_SYNC = (byte) 0xff;
-    private static final int PIXY_CAM_BRIGHTNESS_SYNC = (byte) 0xfe;
-    private static final int PIXY_LED_SYNC = (byte) 0xfd;
+    private static final byte PIXY_SERVO_SYNC = (byte) 0xff;
+    private static final byte PIXY_CAM_BRIGHTNESS_SYNC = (byte) 0xfe;
+    private static final byte PIXY_LED_SYNC = (byte) 0xfd;
 
     private PixyCamIO io;
 
